@@ -1,5 +1,7 @@
 /**
- * Theme Toggle — 3-state cycling: system → light → dark
+ * Theme Toggle — smart cycling based on default theme config.
+ * When default is "system": 3-state cycle (system → light → dark).
+ * When default is "light" or "dark": 2-state toggle (light ↔ dark).
  * Applies .dark class on <html> and persists preference in localStorage.
  * Inline script in <head> handles initial state to prevent FOUC.
  */
@@ -7,27 +9,28 @@
     const btn = document.getElementById('themeToggle');
     if (!btn) return;
 
-    const states = ['system', 'light', 'dark'];
-
-    // Cache SVG icon references once to avoid repeated DOM queries in updateIcon
-    const icons = {};
-    states.forEach(s => { icons[s] = btn.querySelector(`[data-icon="${s}"]`); });
+    const html = document.documentElement;
+    const defaultTheme = window.__themeDefault || 'system';
+    const states = defaultTheme === 'system'
+        ? ['system', 'light', 'dark']
+        : ['light', 'dark'];
 
     function getState() {
-        return localStorage.getItem('theme') || (window.__themeDefault || 'system');
+        var saved;
+        try { saved = localStorage.getItem('theme'); } catch (e) {}
+        if (saved && states.includes(saved)) return saved;
+        return defaultTheme;
     }
 
     function updateIcon(state) {
-        states.forEach(s => {
-            if (icons[s]) icons[s].classList.toggle('hidden', s !== state);
-        });
+        // Drive icon visibility via CSS attribute selector on <html>
+        html.setAttribute('data-theme-state', state);
         // Update aria-label so screen readers announce the current theme state
         const label = btn.dataset['label' + state.charAt(0).toUpperCase() + state.slice(1)];
         if (label) btn.setAttribute('aria-label', label);
     }
 
     function apply(state) {
-        const html = document.documentElement;
         if (state === 'dark') {
             html.classList.add('dark');
             html.style.colorScheme = 'dark';
@@ -42,16 +45,33 @@
         updateIcon(state);
     }
 
-    function cycle() {
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    function cycle(e) {
         const current = getState();
         const next = states[(states.indexOf(current) + 1) % states.length];
-        localStorage.setItem('theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
 
-        const html = document.documentElement;
-        html.classList.add('theme-transition');
-        apply(next);
-        // 350ms matches .theme-transition duration in _tailwind.css
-        setTimeout(() => html.classList.remove('theme-transition'), 350);
+        // Skip all animation when user prefers reduced motion
+        if (reducedMotionQuery.matches) {
+            apply(next);
+            return;
+        }
+
+        // Use View Transitions API for cross-fade effect (Chrome 111+, Safari 18+)
+        if (document.startViewTransition) {
+            try {
+                document.startViewTransition(() => apply(next));
+            } catch (e) {
+                apply(next);
+            }
+        } else {
+            // Fallback: CSS class-based transition
+            html.classList.add('theme-transition');
+            apply(next);
+            // 450ms matches longest transition duration (0.4s) in _tailwind.css + buffer
+            setTimeout(() => html.classList.remove('theme-transition'), 450);
+        }
     }
 
     btn.addEventListener('click', cycle);

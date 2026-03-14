@@ -3,25 +3,52 @@
 <html lang="zh-Hans" class="h-full scroll-smooth">
 <head>
     <meta charset="utf-8" />
-    <!-- FOUC prevention: apply dark mode class before first paint -->
-    <script>(function(){var d='light';window.__themeDefault=d;var t=localStorage.getItem('theme')||d;var k=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches);if(k)document.documentElement.classList.add('dark');document.documentElement.style.colorScheme=k?'dark':'light';window.__prefersReduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;})()</script>
+    <meta name="generator" content="Hexo " />
+    <!-- FOUC prevention: apply dark mode class before first paint.
+         Flow: read default → build valid states → read localStorage (try/catch for Safari private mode)
+         → validate saved state → set data-theme-state on <html> → resolve effective dark/light
+         → add .dark class and colorScheme if needed. -->
+    <script>(function(){var d="light";window.__themeDefault=d;var s=d==='system'?['system','light','dark']:['light','dark'];var sv;try{sv=localStorage.getItem('theme')}catch(e){}if(!sv||s.indexOf(sv)===-1)sv=d;var h=document.documentElement;h.setAttribute('data-theme-state',sv);var k=sv==='dark'||(sv!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches);if(k)h.classList.add('dark');h.style.colorScheme=k?'dark':'light';})()</script>
     <!-- Preconnect for Google Fonts (before any CSS to maximize benefit) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Google Fonts: async preload to avoid render-blocking; merged into a single request.
          Note: onload inline handler may be blocked under strict CSP; use JS font loader if CSP is required. -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;500;600&family=Yuji+Syuku&family=Yuji+Boku&family=Zen+Old+Mincho:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600&family=Fira+Code:wght@400;500;600&family=IM+Fell+English:ital@0;1&display=swap" onload="this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;500;600&family=Yuji+Syuku&family=Yuji+Boku&family=Zen+Old+Mincho:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600&family=Fira+Code:wght@400;500;600&family=IM+Fell+English:ital@0;1&display=swap" /></noscript>
+    
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;600&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;600&family=Noto+Serif+JP:wght@400;600&family=Noto+Serif+SC:wght@400;600&family=Cormorant+Garamond:wght@400;600&family=Fira+Code:wght@400;500&display=swap" onload="this.rel='stylesheet'" data-csp-fallback />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;600&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;600&family=Noto+Serif+JP:wght@400;600&family=Noto+Serif+SC:wght@400;600&family=Cormorant+Garamond:wght@400;600&family=Fira+Code:wght@400;500&display=swap" /></noscript>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    
+    
     
     
     <title>听雨者説</title>
 
     <!-- SEO Meta -->
     
-    
-    
     <meta name="description" content="一切安好" />
+    
+    
+    <meta name="author" content="軒楝" />
+    
+    
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="听雨者説" />
+    
+    <meta property="og:description" content="一切安好" />
+    
+    <meta property="og:url" content="http://example.com/index.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="听雨者説" />
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="听雨者説" />
+    
+    <meta name="twitter:description" content="一切安好" />
     
     
 
@@ -38,11 +65,17 @@
 
     <!-- CSS -->
     
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css" integrity="sha384-YlypU+LX5577RgeZebpBZTy28roXf0lHGaOSxrroczh16ktxM0BoAMPXsrehqxx8" crossorigin="anonymous" />
+    
     <link rel="stylesheet" href="/css/style.min.css">
-<meta name="generator" content="Hexo 8.1.1"></head>
+    <!-- CSP fallback: promote preloaded font stylesheets if onload was blocked.
+         setTimeout(3000) gives onload enough time to fire first; only unprocessed preloads are promoted. -->
+    <script>setTimeout(function(){document.querySelectorAll('link[data-csp-fallback][rel="preload"]').forEach(function(l){l.rel='stylesheet'})},3000)</script>
+</head>
 
 
-<body class="h-full fog-bg text-slate-800" data-toc-depth="3" data-toc-min="3">
+<body class="h-full fog-bg text-slate-800">
+    
     
 <svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
     <defs>
@@ -57,16 +90,15 @@
     </defs>
 </svg>
 
-
     
-    <div id="progressBar" class="progress-bar" aria-hidden="true"></div>
+
     
 
     <div class="min-h-full px-4 pt-14 pb-6 md:pb-5">
 
         <!-- Paper Card -->
         <div
-            class="paper relative mx-auto w-full max-w-4xl rounded-2xl px-5 sm:px-8 md:px-12 lg:px-14 pt-10 pb-6 md:pt-12 md:pb-8">
+            class="paper relative mx-auto w-full max-w-4xl rounded-xl px-5 sm:px-8 md:px-12 lg:px-14 pt-10 pb-6 md:pt-12 md:pb-8">
 
             
 <header class="relative">
@@ -74,15 +106,17 @@
     <div class="relative flex items-start justify-center">
         <div class="text-center">
             <div class="relative inline-block">
+                
                 <h1 class="site-title">
                     <a href="/">听雨者説</a>
                 </h1>
+                
                 <!-- Seal: Mathematically Centered -->
                 
                 <div
                     class="absolute left-full top-1/2 -translate-y-1/2 ml-1 sm:ml-4 origin-left scale-75 sm:scale-110">
                     
-<svg width="52" height="52" viewBox="0 0 100 100" aria-label="朱印：白" title="朱印：白"
+<svg width="52" height="52" viewBox="0 0 100 100" aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg">
     <path d="M15,12 Q50,5 85,12 Q95,50 88,88 Q50,95 12,88 Q5,50 15,12 Z"
         fill="var(--color-seal)" filter="url(#seal-roughness)" opacity="0.92" />
@@ -94,24 +128,29 @@
                 </div>
                 
             </div>
-            <p class="site-subtitle">
-                以夜為箋，寄心成簡。
-            </p>
+            
             <div class="mt-3 sm:mt-4 flex justify-center gap-2">
                 
                 
-                <button id="themeToggle" class="group header-pill-btn" aria-label="System" data-label-system="System" data-label-light="Light" data-label-dark="Dark">
-                    <svg data-icon="system" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="1.5"/>
-                        <path d="M8 21h8M12 17v4" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                    <svg data-icon="light" class="w-3.5 h-3.5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <circle cx="12" cy="12" r="4" stroke-width="1.5"/>
-                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                    <svg data-icon="dark" class="w-3.5 h-3.5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                
+                <button id="themeToggle" class="group header-pill-btn" aria-label="Light" data-label-system="System" data-label-light="Light" data-label-dark="Dark">
+                    
+<svg data-icon="system" class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="1.5"/>
+    <path d="M8 21h8M12 17v4" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
+
+                    
+<svg data-icon="light" class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="4" stroke-width="1.5"/>
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
+
+                    
+<svg data-icon="dark" class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
                 </button>
                 
             </div>
@@ -124,11 +163,11 @@
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
         <button id="menuBtn"
-            class="focus-elegant inline-flex items-center gap-2 rounded-full border border-slate-200 bg-paper/70 px-4 py-2 text-sm text-slate-700 shadow-xs backdrop-blur-xs"
+            class="focus-elegant inline-flex items-center gap-2 rounded-full border border-slate-200 bg-paper/95 px-4 py-2 text-sm text-slate-700 shadow-xs"
             aria-expanded="false" aria-controls="mobileMenu">
             <span class="text-base leading-none tracking-widest">Menu</span>
             
-<svg class="h-4 w-4 text-slate-500 transition-transform duration-200" id="menuChevron"
+<svg class="size-4 text-slate-500 transition-transform duration-200" id="menuChevron"
     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
     <path fill-rule="evenodd"
         d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08z"
@@ -142,25 +181,25 @@
     <div class="hidden md:block">
         <ul class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base text-slate-700 px-4">
             
-            <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-[var(--color-seal)] transition-colors"
+            <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
                     href="/" >Home</a></li>
             
-            <li class="text-slate-400 select-none" aria-hidden="true">/</li>
+            <li class="nav-divider text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
             
             
-            <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-[var(--color-seal)] transition-colors"
+            <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
                     href="/archives" >Archives</a></li>
             
-            <li class="text-slate-400 select-none" aria-hidden="true">/</li>
+            <li class="nav-divider text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
             
             
-            <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-[var(--color-seal)] transition-colors"
+            <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
                     href="/categories" >Categories</a></li>
             
-            <li class="text-slate-400 select-none" aria-hidden="true">/</li>
+            <li class="nav-divider text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
             
             
-            <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-[var(--color-seal)] transition-colors"
+            <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
                     href="/tags" >Tags</a></li>
             
             
@@ -170,27 +209,27 @@
     <!-- Mobile Menu Panel -->
     <div id="mobileMenu" class="menu-panel md:hidden mt-4" data-open="false">
         <ul
-            class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-slate-200 bg-paper/70 backdrop-blur-xs shadow-xs">
+            class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-slate-200 bg-paper/95 shadow-xs">
             
-            <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-[var(--color-seal)] hover:bg-[var(--color-seal)]/5 transition-colors"
+            <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-seal hover:bg-seal/5 transition-colors"
                     href="/" >Home</a></li>
             
-            <li class="h-px bg-slate-200/70" aria-hidden="true"></li>
+            <li class="h-px bg-slate-200/70" role="separator" aria-hidden="true"></li>
             
             
-            <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-[var(--color-seal)] hover:bg-[var(--color-seal)]/5 transition-colors"
+            <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-seal hover:bg-seal/5 transition-colors"
                     href="/archives" >Archives</a></li>
             
-            <li class="h-px bg-slate-200/70" aria-hidden="true"></li>
+            <li class="h-px bg-slate-200/70" role="separator" aria-hidden="true"></li>
             
             
-            <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-[var(--color-seal)] hover:bg-[var(--color-seal)]/5 transition-colors"
+            <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-seal hover:bg-seal/5 transition-colors"
                     href="/categories" >Categories</a></li>
             
-            <li class="h-px bg-slate-200/70" aria-hidden="true"></li>
+            <li class="h-px bg-slate-200/70" role="separator" aria-hidden="true"></li>
             
             
-            <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-[var(--color-seal)] hover:bg-[var(--color-seal)]/5 transition-colors"
+            <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-seal hover:bg-seal/5 transition-colors"
                     href="/tags" >Tags</a></li>
             
             
@@ -214,21 +253,22 @@
 <div class="mt-2 flex items-center justify-center gap-4 text-sm text-slate-500 flex-wrap">
     <div class="flex items-center gap-1.5">
         
-<svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<svg class="size-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 </svg>
 
-        <a href="/archives/2026/" class="oldstyle-nums link-muted">2026/01/17</a>
+        <a href="/archives/2026/" class="oldstyle-nums link-muted"><time datetime="2026-01-17">2026/01/17</time></a>
     </div>
     
 </div>
 
     </header>
     
+        
+        
+    
     <div class="prose-shiro">
-        
-            Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick...
-        
+        <p>Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick...</p>
     </div>
     
     <div class="mt-6 text-center">
@@ -261,8 +301,8 @@
         </div>
 
         <!-- Note Text — decorative aside, not part of main content or footer -->
-        <aside class="mt-4 text-center" aria-hidden="true">
-            <p class="site-note font-title text-xs sm:text-sm text-slate-400/70 tracking-note font-light select-none">
+        <aside class="mt-4 text-center" aria-hidden="true" role="presentation">
+            <p class="site-note font-title text-xs sm:text-sm text-slate-400/70 tracking-note font-light select-none" lang="ja">
                 白は、余白の名。
             </p>
         </aside>
@@ -270,7 +310,7 @@
 
     
     <button id="backToTop" class="back-to-top" data-visible="false" aria-label="Back to Top">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
         </svg>
     </button>
@@ -278,9 +318,13 @@
 
     <!-- Scripts -->
     
+    <script>window.__i18n = {"clipboard_copy":"Copy code","clipboard_copied":"Copied","gallery_visit_source":"View Source Link","gallery_view_image":"View image"};</script>
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js" integrity="sha384-yshhQEAY0bBxbxfLyRlLQ7v1z45XofL6adlFh192s2NpDzXS+HPKjXoloaHiNcYO" crossorigin="anonymous"></script>
+    <script defer src="/js/lightgallery.js"></script>
+    <script defer src="/js/clipboard.js"></script>
     
     
-    <script defer src="/js/toc.js"></script>
     
     
     <script defer src="/js/progress.js"></script>
@@ -288,7 +332,9 @@
     
     <script defer src="/js/theme-toggle.js"></script>
     
-    <script defer src="/js/main.js"></script>
+    
+    <script defer src="/js/mobile-menu.js"></script>
+    
     
 
 </body>

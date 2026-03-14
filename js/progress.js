@@ -3,7 +3,7 @@
     const backBtn = document.getElementById('backToTop');
     if (!bar && !backBtn) return;
 
-    const prefersReduced = window.__prefersReduced;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let ticking = false;
 
     function update() {
@@ -13,6 +13,7 @@
         if (bar) {
             if (docHeight <= 0) {
                 bar.style.opacity = '0';
+                bar.style.transform = 'scaleX(0)';
             } else {
                 bar.style.opacity = '1';
                 const progress = Math.min(scrollY / docHeight, 1);
@@ -37,7 +38,7 @@
 
     if (backBtn) {
         backBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
+            window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
         });
     }
 

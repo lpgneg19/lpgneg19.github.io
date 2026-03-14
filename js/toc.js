@@ -4,10 +4,10 @@
     const prose = document.querySelector('.prose-shiro');
     if (!prose || (!tocSidebar && !tocInline)) return;
 
-    const prefersReduced = window.__prefersReduced;
-    // Defaults match _config.yml toc.depth and toc.min_headings; keep in sync if changed
-    const maxDepth = parseInt(document.body.dataset.tocDepth || '3', 10);
-    const minHeadings = parseInt(document.body.dataset.tocMin || '3', 10);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const tocCfg = window.__tocConfig || {};
+    const maxDepth = tocCfg.depth || 3;
+    const minHeadings = tocCfg.minHeadings || 3;
 
     const levels = [];
     for (let i = 1; i <= maxDepth; i++) levels.push('h' + (i + 1));
@@ -24,7 +24,7 @@
         return text.trim()
             .toLowerCase()
             .replace(/[\s]+/g, '-')
-            .replace(/[^\w\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\u3400-\u4dbf-]/g, '')
+            .replace(/[^\w\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\u3400-\u4dbf\uAC00-\uD7AF-]/g, '')
             .replace(/-+/g, '-')
             .replace(/^-|-$/g, '')
             || 'heading';
@@ -52,18 +52,25 @@
         if (lvl < minLevel) minLevel = lvl;
     });
 
-    // Build TOC HTML
+    // Build TOC DOM to avoid innerHTML XSS risks
     function buildToc() {
-        let html = '<ul class="toc-list">';
+        const ul = document.createElement('ul');
+        ul.className = 'toc-list';
         headings.forEach((h) => {
             const level = parseInt(h.tagName[1], 10);
             const indent = level - minLevel;
-            html += '<li class="toc-item" data-level="' + indent + '">' +
-                '<a class="toc-link" href="#' + h.id + '" data-target="' + h.id + '">' +
-                h.textContent.trim() + '</a></li>';
+            const li = document.createElement('li');
+            li.className = 'toc-item';
+            li.dataset.level = indent;
+            const a = document.createElement('a');
+            a.className = 'toc-link';
+            a.href = '#' + h.id;
+            a.dataset.target = h.id;
+            a.textContent = h.textContent.trim();
+            li.appendChild(a);
+            ul.appendChild(li);
         });
-        html += '</ul>';
-        return html;
+        return ul;
     }
 
     const tocHtml = buildToc();
@@ -71,13 +78,12 @@
     // Populate sidebar TOC
     if (tocSidebar) {
         const sidebarList = tocSidebar.querySelector('.toc-body');
-        if (sidebarList) sidebarList.innerHTML = tocHtml;
+        if (sidebarList) { sidebarList.textContent = ''; sidebarList.appendChild(tocInline ? tocHtml.cloneNode(true) : tocHtml); }
     }
 
-    // Populate inline TOC
     if (tocInline) {
         const inlineList = tocInline.querySelector('.toc-body');
-        if (inlineList) inlineList.innerHTML = tocHtml;
+        if (inlineList) { inlineList.textContent = ''; inlineList.appendChild(tocHtml); }
 
         // Toggle inline TOC with dynamic max-height
         const toggleBtn = tocInline.querySelector('.toc-toggle');
@@ -96,21 +102,20 @@
                 }
                 toggleBtn.setAttribute('aria-expanded', open ? 'false' : 'true');
                 const chevron = toggleBtn.querySelector('.toc-chevron');
-                if (chevron && !prefersReduced) {
+                if (chevron && !reducedMotion.matches) {
                     chevron.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
                 }
             });
         }
     }
 
-    // Smooth scroll (respects prefers-reduced-motion)
-    const scrollBehavior = prefersReduced ? 'auto' : 'smooth';
+    // Smooth scroll (respects prefers-reduced-motion, checked at click time)
     document.querySelectorAll('.toc-link').forEach((link) => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const target = document.getElementById(link.dataset.target);
             if (target) {
-                target.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
+                target.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
                 history.replaceState(null, '', '#' + link.dataset.target);
             }
         });
@@ -144,6 +149,11 @@
         if (!img.complete) img.addEventListener('load', debouncedCachePositions, { once: true });
     });
 
+    // Re-cache after web fonts finish loading (line-height changes shift headings)
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(debouncedCachePositions);
+    }
+
     function updateActiveHeading() {
         const scrollY = window.scrollY;
         const offset = 100; // px from top
@@ -173,7 +183,7 @@
                 const linkRect = activeLink.getBoundingClientRect();
                 const containerRect = scrollContainer.getBoundingClientRect();
                 if (linkRect.top < containerRect.top || linkRect.bottom > containerRect.bottom) {
-                    activeLink.scrollIntoView({ block: 'nearest', behavior: prefersReduced ? 'auto' : 'smooth' });
+                    activeLink.scrollIntoView({ block: 'nearest', behavior: reducedMotion.matches ? 'auto' : 'smooth' });
                 }
             }
         }
@@ -196,19 +206,15 @@
         const hashTarget = document.getElementById(location.hash.slice(1));
         if (hashTarget) {
             setTimeout(() => {
-                hashTarget.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
+                hashTarget.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
                 updateActiveHeading();
             }, 100);
         }
     }
 
     // Sidebar fade-in animation
-    if (tocSidebar && !prefersReduced) {
-        tocSidebar.style.opacity = '0';
-        // Uses --ease-soft from @theme in _tailwind.css
-        tocSidebar.style.transition = 'opacity 0.4s var(--ease-soft)';
-        requestAnimationFrame(() => {
-            tocSidebar.style.opacity = '1';
-        });
+    if (tocSidebar && !reducedMotion.matches) {
+        tocSidebar.classList.add('toc-fade-in');
+        requestAnimationFrame(() => tocSidebar.classList.add('toc-visible'));
     }
 })();
